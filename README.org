@@ -1,0 +1,24 @@
+#+title: rules_copybara
+
+A Bazel rule that wraps [[github:google/copybara][Copybara]], a google-built tool for working with multiple repos
+* Installation
+add this to your repo's WORKSPACE file
+#+begin_src starlark
+
+#+end_src
+* Usage
+** Getting started
+Follow the instructions in the [[*Installation][Installation]] section
+** Examples
+*** External repository pulled in
+#+begin_src starlark
+
+#+end_src
+*** Push out a folder to an external repository
+*** Synchronize pull requests from an external GitHub repository
+*** Push pull requests to an external GitHub repository
+
+* Contributing
+
+* Authors
+Dhasharath Shrivathsa <me@dha.sh>
