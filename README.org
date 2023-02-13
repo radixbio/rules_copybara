@@ -2,9 +2,28 @@
 
 A Bazel rule that wraps [[github:google/copybara][Copybara]], a google-built tool for working with multiple repos
 * Installation
-add this to your repo's WORKSPACE file
+add this to your repo's WORKSPACE file (bazel 5.3.1)
 #+begin_src starlark
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "com_github_google_copybara",
+    sha256 = "6601b287c39a08eb5c6e5ed15c920ed2bfeb9140220190ef29c117f2abe5b55d",
+    strip_prefix = "copybara-6cd6432036fd47ba13737aa2ab3703ebf7a8a8cb",
+    url = "https://github.com/google/copybara/archive/6cd6432036fd47ba13737aa2ab3703ebf7a8a8cb.zip",
+)
 
+
+load("@com_github_google_copybara//:repositories.bzl", "copybara_repositories")
+
+copybara_repositories()
+
+load("@com_github_google_copybara//:repositories.maven.bzl", "copybara_maven_repositories")
+
+copybara_maven_repositories()
+
+load("@com_github_google_copybara//:repositories.go.bzl", "copybara_go_repositories")
+
+copybara_go_repositories()
 #+end_src
 * Usage
 ** Getting started
@@ -17,6 +36,9 @@ Follow the instructions in the [[*Installation][Installation]] section
 *** Push out a folder to an external repository
 *** Synchronize pull requests from an external GitHub repository
 *** Push pull requests to an external GitHub repository
+** Things to keep in mind
+- Copybara does not have CI on its repo, so not all commit hashes work.
+- Copybara includes bazel's source tree itself in its dependencies, and not all versions of bazel can build bazel. At the time of writing, latest master works only on bazel =6.0.0=, whereas the version I use (since i'm on bazel =5.3.1=) works with commit =6cd64320=
 
 * Contributing
 

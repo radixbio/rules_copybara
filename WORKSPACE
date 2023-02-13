@@ -1,7 +1,5 @@
-load(":copybara.bzl", "copybara_dependencies", "copybara")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-#copybara_dependencies()
 #http_archive(
 #    name = "com_github_google_copybara",
 #    sha256 = "0b7263399f1f66c478dec09a157ef6a57bdcac4aa5acbe00a429f8d4f26455b6",
