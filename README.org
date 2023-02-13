@@ -48,6 +48,17 @@ core.workflow(
 )
 
 #+end_src
+
+and the rule invocation in a =BUILD= file
+#+begin_src python
+copybara(
+    name = "z3-copybara-import", # name of the rule
+    additional_files = ["//copybara/workflow_files:z3.patch"], # additional files you may need
+    destination_dir = "3rdparty/copybara/z3", # to land in the source tree of the repo with this BUILD file
+    workflow_defs = "//copybara/workflow_files:z3.sky", # the workflow definition
+    workflows = ["z3"], # select which workflows to run
+)
+#+end_src
 *** Push out a folder to an external repository
 *** Synchronize pull requests from an external GitHub repository
 *** Push pull requests to an external GitHub repository
