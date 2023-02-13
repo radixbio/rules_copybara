@@ -1,0 +1,136 @@
+diff --git BUILD BUILD
+new file mode 100644
+index 000000000..e99535131
+--- /dev/null
++++ BUILD
+@@ -0,0 +1,82 @@
++load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
++load("//tools/patchelf:rule.bzl", "patchelf")
++package(default_visibility = ["//3rdparty/copybara:__subpackages__"])
++filegroup(
++    name = "all_srcs",
++    srcs = glob(["**"]),
++)
++
++cmake(
++    name = "libz3",
++    cache_entries = {
++      "CMAKE_BUILD_TYPE": "Release",
++      "Z3_ENALBE_TRACING_FOR_NON_DEBUG": "FALSE",
++      "Z3_BUILD_JAVA_BINDINGS": "TRUE",
++      "Z3_BUILD_LIBZ3_SHARED": "TRUE",
++      "Z3_LINK_TINE_OPTIMIZATION": "TRUE",
++      "Z3_SINGLE_THREADED": "FALSE",
++      "Z3_USE_LIB_GMP": "TRUE",
++      "Z3_API_LOG_SYNC": "FALSE",
++    },
++    out_shared_libs = ["libz3.so", "libz3java.so"],
++    out_data_dirs = ["share/java"],
++    out_binaries = ["z3", "com.microsoft.z3.jar", "libz3.so", "libz3java.so"],
++    # explicitly specify the generator
++    generate_args = ["-G Ninja"],
++    lib_source = ":all_srcs",
++    postfix_script = "cp $$INSTALLDIR$$/share/java/com.microsoft.z3.jar $$INSTALLDIR$$/lib/libz3.so $$INSTALLDIR$$/lib/libz3java.so $$INSTALLDIR$$/bin"
++)
++
++cc_import(
++    name = "z3java_shared_obj",
++    shared_library = ":z3java_shared_obj_fg",
++)
++
++filegroup(
++    name = "z3java_shared_obj_fg",
++    srcs = [":libz3"],
++    output_group = "libz3java.so"
++)
++ # Renaming the file so the scala_library rule can consume it
++ # Note: scala_library rules do not like the word java in resources ...
++ # ... there is also a limitation on the length of the library name
++genrule(
++     name = "libz3java_renamed",
++     srcs = [":z3java_shared_obj_fg"],
++     outs = ["libguava.so"],
++     cmd = "cat $< > $@"
++ )
++
++patchelf(
++    name = "z3java_patched",
++    objs = [":z3java_shared_obj_fg"],
++    command = "--set-rpath '$ORIGIN'"
++)
++
++cc_import(
++    name = "z3_shared_obj",
++    shared_library = ":z3_shared_obj_fg",
++)
++
++filegroup(
++    name = "z3_shared_obj_fg",
++    srcs = [":libz3"],
++    output_group = "libz3.so"
++)
++
++filegroup(
++    name = "microsoft_z3_jar_fg",
++    srcs = [":libz3"],
++    output_group = "com.microsoft.z3.jar"
++)
++
++java_import(
++    name = "microsoft_z3_jar",
++    jars = [":microsoft_z3_jar_fg"],
++)
++
++filegroup(
++    name = "microsoft_z3_fg",
++    srcs = [":libz3"],
++    output_group = "z3"
++)
+diff --git a/src/api/api_arith.cpp b/src/api/api_arith.cpp
+index 9671dbc26..bef2b3f9d 100644
+--- src/api/api_arith.cpp
++++ src/api/api_arith.cpp
+@@ -67,6 +67,7 @@ extern "C" {
+     MK_BINARY_ARITH_OP(Z3_mk_power, OP_POWER);
+     MK_BINARY_ARITH_OP(Z3_mk_mod, OP_MOD);
+     MK_BINARY_ARITH_OP(Z3_mk_rem, OP_REM);
++    MK_UNARY(Z3_mk_abs, mk_c(c)->get_arith_fid(), OP_ABS, SKIP);
+
+     Z3_ast Z3_API Z3_mk_div(Z3_context c, Z3_ast n1, Z3_ast n2) {
+         Z3_TRY;
+diff --git a/src/api/api_ast.cpp b/src/api/api_ast.cpp
+index df3059d4b..c670709c1 100644
+--- src/api/api_ast.cpp
++++ src/api/api_ast.cpp
+@@ -1125,6 +1125,7 @@ extern "C" {
+             case OP_TO_REAL: return Z3_OP_TO_REAL;
+             case OP_TO_INT: return Z3_OP_TO_INT;
+             case OP_IS_INT: return Z3_OP_IS_INT;
++            case OP_ABS: return Z3_OP_ABS;
+             default:
+                 return Z3_OP_INTERNAL;
+             }
+diff --git a/src/api/z3_api.h b/src/api/z3_api.h
+index 9955f91be..92856f9d3 100644
+--- src/api/z3_api.h
++++ src/api/z3_api.h
+@@ -1021,6 +1021,7 @@ typedef enum {
+     Z3_OP_TO_INT,
+     Z3_OP_IS_INT,
+     Z3_OP_POWER,
++    Z3_OP_ABS,
+
+     // Arrays & Sets
+     Z3_OP_STORE = 0x300,
+@@ -2448,6 +2449,11 @@ extern "C" {
+     */
+     Z3_ast Z3_API Z3_mk_add(Z3_context c, unsigned num_args, Z3_ast const args[]);
+
++    /**
++       def_API('Z3_mk_abs', AST, (_in(CONTEXT), _in(AST)))
++    */
++    Z3_ast Z3_API Z3_mk_abs(Z3_context c, Z3_ast t1);
++
+     /**
+        \brief Create an AST node representing \ccode{args[0] * ... * args[num_args-1]}.
+

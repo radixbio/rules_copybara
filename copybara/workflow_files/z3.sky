@@ -1,0 +1,14 @@
+core.workflow(
+    name = "z3",
+    origin = git.origin(
+        url = "https://github.com/Z3Prover/z3.git",
+        ref = "z3-4.11.2",
+    ),
+    origin_files = glob(["**"]),
+    destination = folder.destination(),
+    destination_files = glob(["**"]),
+    authoring = authoring.pass_thru("z3 copybara update <copybara@radix.bio>"),
+    transformations = [
+        patch.apply(patches = ["z3.patch"], strip = 0),
+    ],
+)
