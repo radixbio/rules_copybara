@@ -35,6 +35,10 @@ def _copybara_impl(ctx):
             command.append("--folder-dir")
             command.append("${BUILD_WORKSPACE_DIRECTORY}/" + str(ctx.attr.destination_dir))
 
+        # append additional command line args
+        if ctx.attr.cli_args != "":
+            command.append(str(ctx.attr.cli_args))
+
         # form the actual cli command
         command = " ".join(command)
 
@@ -72,6 +76,10 @@ copybara = rule(
         ),
         "additional_files": attr.label_list(
             allow_files = True,
+        ),
+        "cli_args": attr.string(
+            mandatory = False,
+            default = ""
         ),
         "deps": attr.label_list(),  # TODO run these copybara rules first
         "_deployment_script_template": attr.label(
