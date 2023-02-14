@@ -1,0 +1,24 @@
+core.workflow(
+    name = "scalaz3",
+    origin = git.origin(
+        url = "https://github.com/epfl-lara/ScalaZ3.git",
+        ref = "f0869281a7a42a1ed336b9e9259518c0c75acaa9",
+    ),
+    origin_files = glob(["**"], exclude = ["build.sbt", "project"]),
+    destination = folder.destination(),
+    destination_files = glob(["**"]),
+    authoring = authoring.pass_thru("scalaz3 copybara update <copybara@radix.bio>"),
+    transformations = [
+        patch.apply(patches = ["examples/scalaz3.patch"], strip = 0),
+        core.replace(
+            before = """import org.scalatest.{FunSuite, Matchers}""",
+            after = """import org.scalatest.funsuite.AnyFunSuite\nimport org.scalatest.matchers.should.Matchers""",
+            paths = glob(["src/test/**/*.scala"]),
+        ),
+        core.replace(
+            before = "extends FunSuite",
+            after = "extends AnyFunSuite",
+            paths = glob(["src/test/**/*.scala"]),
+        ),
+    ],
+)

@@ -1,5 +1,10 @@
 #+title: Changelog
 
+
+* <2023-02-14 Tue>
+- make things work with nested dependencies
+- add shaan as a contributor
+- move workflow_defs to an =examples= folder
 * <2023-02-13 Mon>
 - can't roll our own dependencies, so rely on upstream Copybara
 - add z3 example rule and get it working

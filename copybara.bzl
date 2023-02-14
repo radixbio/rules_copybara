@@ -1,7 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
-
 CopybaraInfo = provider(fields = ["skys", "additional", "script"])
 
 def _copybara_impl(ctx):
@@ -10,7 +9,6 @@ def _copybara_impl(ctx):
 
     # get the copybara provider
     copybara = ctx.attr._copybara[DefaultInfo]
-
 
     script = str("")
     workflow_defs = []
@@ -56,31 +54,32 @@ def _copybara_impl(ctx):
 
         """.format(
             workflow_defs = str(workflow_defs_path.path),
-            command = command
+            command = command,
         )
 
     ctx.actions.write(
         output = ctx.outputs.executable,
         is_executable = True,
-        content = "set -euo pipefail" + '\n' + "set -x" + '\n' + script
+        content = "set -euo pipefail" + "\n" + "set -x" + "\n" + script,
     )
 
     copybara_info = CopybaraInfo(
         script = script,
         skys = workflow_defs + [workflow_defs_path],
-        additional = additional_files
+        additional = additional_files,
     )
 
-    return [DefaultInfo(
-        executable = ctx.outputs.executable,
-        runfiles = ctx.runfiles(
-            files = copybara.files.to_list() +
-            copybara_info.skys +
-            copybara_info.additional +
-            copybara.default_runfiles.files.to_list()
-        )
-    ),
-            copybara_info
+    return [
+        DefaultInfo(
+            executable = ctx.outputs.executable,
+            runfiles = ctx.runfiles(
+                files = copybara.files.to_list() +
+                        copybara_info.skys +
+                        copybara_info.additional +
+                        copybara.default_runfiles.files.to_list(),
+            ),
+        ),
+        copybara_info,
     ]
 
 copybara = rule(
@@ -99,14 +98,14 @@ copybara = rule(
         ),
         "cli_args": attr.string(
             mandatory = False,
-            default = ""
+            default = "",
         ),
         "deps": attr.label_list(
             mandatory = False,
-            providers = [CopybaraInfo]
+            providers = [CopybaraInfo],
         ),
         "run_deps": attr.bool(
-            default = True
+            default = True,
         ),
         "_deployment_script_template": attr.label(
             allow_single_file = True,
