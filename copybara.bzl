@@ -107,10 +107,6 @@ copybara = rule(
         "run_deps": attr.bool(
             default = True,
         ),
-        "_deployment_script_template": attr.label(
-            allow_single_file = True,
-            default = "//copybara:wrapper.sh.tpl",
-        ),
         "_copybara": attr.label(
             allow_files = True,
             default = "@com_github_google_copybara//java/com/google/copybara",
