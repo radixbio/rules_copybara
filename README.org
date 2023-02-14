@@ -61,8 +61,8 @@ copybara(
 )
 #+end_src
 **** a (slightly) more complex example
-#+begin_src python
 in =scalaz3.sky=
+#+begin_src python
 core.workflow(
     name = "scalaz3",
     origin = git.origin(
