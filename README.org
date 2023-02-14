@@ -44,7 +44,7 @@ core.workflow(
     destination_files = glob(["**"]),
     authoring = authoring.pass_thru("z3 copybara update <copybara@radix.bio>"),
     transformations = [
-        patch.apply(patches = ["z3.patch"], strip = 0),
+        patch.apply(patches = ["examples/z3.patch"], strip = 0),
     ],
 )
 
@@ -54,9 +54,9 @@ and the rule invocation in a =BUILD= file
 #+begin_src python
 copybara(
     name = "z3-copybara-import", # name of the rule
-    additional_files = ["//copybara/workflow_files:z3.patch"], # additional files you may need
+    additional_files = ["//examples:z3.patch"], # additional files you may need
     destination_dir = "3rdparty/copybara/z3", # to land in the source tree of the repo with this BUILD file
-    workflow_defs = "//copybara/workflow_files:z3.sky", # the workflow definition
+    workflow_defs = "//examples:z3.sky", # the workflow definition
     workflows = ["z3"], # select which workflows to run
 )
 #+end_src
@@ -74,7 +74,7 @@ core.workflow(
     destination_files = glob(["**"]),
     authoring = authoring.pass_thru("scalaz3 copybara update <copybara@radix.bio>"),
     transformations = [
-        patch.apply(patches = ["copybara/workflow_files/scalaz3.patch"], strip = 0),
+        patch.apply(patches = ["examples/scalaz3.patch"], strip = 0),
         core.replace(
             before = """import org.scalatest.{FunSuite, Matchers}""",
             after = """import org.scalatest.funsuite.AnyFunSuite\nimport org.scalatest.matchers.should.Matchers""",
