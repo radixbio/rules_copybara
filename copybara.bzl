@@ -2,6 +2,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 
+CopybaraInfo = provider(fields = ["skys", "additional", "script"])
+
 def _copybara_impl(ctx):
     # pull in .sky file with the copybara workflow
     workflow_defs_path = ctx.attr.workflow_defs.files.to_list()[0]
@@ -9,16 +11,20 @@ def _copybara_impl(ctx):
     # get the copybara provider
     copybara = ctx.attr._copybara[DefaultInfo]
 
-    copybara_scripts = []
-    runnables = []
+
+    script = str("")
+    workflow_defs = []
     additional_files = []
+    if len(ctx.attr.deps) > 0:
+        for dep in ctx.attr.deps:
+            if ctx.attr.run_deps:
+                script = script + dep[CopybaraInfo].script
+            additional_files.extend(dep[CopybaraInfo].additional)
+            workflow_defs.extend(dep[CopybaraInfo].skys)
+
     for tgt in ctx.attr.additional_files:
         additional_files.extend(tgt.files.to_list())
     for workflow in ctx.attr.workflows:
-        # set up the wrapper script to call copybara with the named workflow
-        script = ctx.actions.declare_file("{}_wrapper.sh".format(workflow))
-        copybara_scripts.append(script)
-
         command = []
 
         # the copybara jar
@@ -43,25 +49,39 @@ def _copybara_impl(ctx):
         command = " ".join(command)
 
         # make the templates
-        ctx.actions.expand_template(
-            template = ctx.file._deployment_script_template,
-            output = script,
-            substitutions = {
-                "{workflow_defs}": str(workflow_defs_path.path),
-                "{command}": command,
-            },
-            is_executable = True,
+        script = script + """
+
+        cp {workflow_defs} copy.bara.sky
+        {command}
+
+        """.format(
+            workflow_defs = str(workflow_defs_path.path),
+            command = command
         )
 
-        # build a runnable DefaultInfo per workflow target
-        runnable = DefaultInfo(
-            executable = script,
-            runfiles = ctx.runfiles(files = copybara.files.to_list() + [workflow_defs_path] + additional_files + copybara.default_runfiles.files.to_list()),
-            files = depset([]),
-        )
-        runnables.append(runnable)
+    ctx.actions.write(
+        output = ctx.outputs.executable,
+        is_executable = True,
+        content = "set -euo pipefail" + '\n' + "set -x" + '\n' + script
+    )
 
-    return runnables
+    copybara_info = CopybaraInfo(
+        script = script,
+        skys = workflow_defs + [workflow_defs_path],
+        additional = additional_files
+    )
+
+    return [DefaultInfo(
+        executable = ctx.outputs.executable,
+        runfiles = ctx.runfiles(
+            files = copybara.files.to_list() +
+            copybara_info.skys +
+            copybara_info.additional +
+            copybara.default_runfiles.files.to_list()
+        )
+    ),
+            copybara_info
+    ]
 
 copybara = rule(
     implementation = _copybara_impl,
@@ -81,7 +101,13 @@ copybara = rule(
             mandatory = False,
             default = ""
         ),
-        "deps": attr.label_list(),  # TODO run these copybara rules first
+        "deps": attr.label_list(
+            mandatory = False,
+            providers = [CopybaraInfo]
+        ),
+        "run_deps": attr.bool(
+            default = True
+        ),
         "_deployment_script_template": attr.label(
             allow_single_file = True,
             default = "//copybara:wrapper.sh.tpl",

@@ -7,5 +7,5 @@ export COMMAND="{command}"
 
 
 cp ${WORKFLOW_DEFS} copy.bara.sky # gets around symlink shenanigans
-cp copybara/workflow_files/* . # load in additional_files
+# cp copybara/workflow_files/* . # load in additional_files
 ${COMMAND}
