@@ -9,6 +9,6 @@ core.workflow(
     destination_files = glob(["**"]),
     authoring = authoring.pass_thru("z3 copybara update <copybara@radix.bio>"),
     transformations = [
-        patch.apply(patches = ["z3.patch"], strip = 0),
+        patch.apply(patches = ["copybara/workflow_files/z3.patch"], strip = 0),
     ],
 )

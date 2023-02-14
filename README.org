@@ -30,6 +30,7 @@ copybara_go_repositories()
 Follow the instructions in the [[*Installation][Installation]] section
 ** Examples
 *** External repository pulled in to source tree
+**** a simple example
 in =scalaz3.sky=
 #+begin_src python
 core.workflow(
@@ -59,6 +60,36 @@ copybara(
     workflows = ["z3"], # select which workflows to run
 )
 #+end_src
+**** a (slightly) more complex example
+#+begin_src python
+in =scalaz3.sky=
+core.workflow(
+    name = "scalaz3",
+    origin = git.origin(
+        url = "https://github.com/epfl-lara/ScalaZ3.git",
+        ref = "f0869281a7a42a1ed336b9e9259518c0c75acaa9",
+    ),
+    origin_files = glob(["**"], exclude = ["build.sbt", "project"]),
+    destination = folder.destination(),
+    destination_files = glob(["**"]),
+    authoring = authoring.pass_thru("scalaz3 copybara update <copybara@radix.bio>"),
+    transformations = [
+        patch.apply(patches = ["copybara/workflow_files/scalaz3.patch"], strip = 0),
+        core.replace(
+            before = """import org.scalatest.{FunSuite, Matchers}""",
+            after = """import org.scalatest.funsuite.AnyFunSuite\nimport org.scalatest.matchers.should.Matchers""",
+            paths = glob(["src/test/**/*.scala"]),
+        ),
+        core.replace(
+            before = "extends FunSuite",
+            after = "extends AnyFunSuite",
+            paths = glob(["src/test/**/*.scala"]),
+        ),
+    ],
+)
+
+#+end_src
+
 *** Push out a folder to an external repository
 *** Synchronize pull requests from an external GitHub repository
 *** Push pull requests to an external GitHub repository
