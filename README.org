@@ -69,4 +69,5 @@ copybara(
 * Contributing
 
 * Authors
-Dhasharath Shrivathsa <me@dha.sh>
+- Dhasharath Shrivathsa <me@dha.sh>
+- Shaan Hashmi <hashmishaana@gmail.com>
