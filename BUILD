@@ -17,3 +17,9 @@ copybara(
     workflows = ["scalaz3"],
     deps = [":z3-copybara-import"]
 )
+# replicant
+copybara(
+    name = "replicant",
+    workflow_defs = "//examples:repo_push.sky",
+    workflows = ["push-folder-to-repo"],
+)
