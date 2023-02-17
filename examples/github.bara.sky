@@ -1,0 +1,40 @@
+def _github_list_prs(ctx):
+    ctx.console.info("!")
+    ext_url = ctx.params['ext_url']
+    int_url = ctx.params['int_url']
+    P = lambda x: _printer(ctx, x)
+    P(ctx)
+    P(ctx.destination_api())
+    P(ctx.origin_api())
+
+    O = git.github_pr_origin(
+            url = ext_url,
+            branch = "main"
+    )
+    P(O)
+    #_printer(ctx, O)
+    #D = ctx.destination_api()
+    #_printer(ctx, D)
+    #_printer(ctx)
+    #_printer(ctx, ctx.destination_api())
+    #_printer(ctx, ctx.destination_api().get_pull_requests())
+    #_printer(ctx, ctx.origin_api().get_pull_requests())
+
+def github_list_prs(ext_url, int_url):
+    return core.dynamic_transform(
+        _github_list_prs,
+        params = {
+            'ext_url': ext_url,
+            'int_url': int_url,
+        })
+
+def _printer(ctx, obj=None):
+    if obj == None:
+        ctx.console.info(str(dir(ctx)))
+        ctx.console.info(str(ctx))
+    else:
+        ctx.console.info(str(dir(obj)))
+        ctx.console.info(str(obj))
+
+def printer(obj = None):
+    return core.dynamic_transform(lambda x: _printer(x, obj))

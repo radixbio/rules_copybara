@@ -17,9 +17,18 @@ copybara(
     workflows = ["scalaz3"],
     deps = [":z3-copybara-import"]
 )
-# replicant
+# push from one repo to the other
 copybara(
-    name = "replicant",
+    name = "replicant_push",
     workflow_defs = "//examples:repo_push.sky",
-    workflows = ["push-folder-to-repo"],
+    workflows = ["push"],
+    cli_args = "--force 1"
+)
+# push pull requests from one repo to the other
+copybara(
+    name = "replicant_pull",
+    workflow_defs = "//examples:repo_push.sky",
+    workflows = ["pull"],
+    additional_files = ["//examples:github.bara.sky"],
+    cli_args = "--force 1"
 )

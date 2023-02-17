@@ -1,0 +1,39 @@
+load("//examples/github", "printer", "github_list_prs")
+
+GHint_url = "git@github.com:DhashS/copybara_sot.git"
+GHext_url = "git@github.com:DhashS/replicant.git"
+
+
+core.workflow(
+    name = "push",
+    origin = git.github_pr_origin(
+        url = GHint_url,
+        branch = "main"
+    ),
+    origin_files = glob(["**"], exclude = ["README.md", "dont_replicate/**"]),
+    destination = git.github_pr_destination(
+        url = GHext_url,
+        pr_branch = "upstream/${CONTEXT_REFERENCE}",
+        destination_ref = "main"
+    ),
+    destination_files = glob(["**"], exclude = ["README.md"]),
+    authoring = authoring.pass_thru("copybara <copybara@radix.bio>")
+)
+core.workflow(
+    name = "pull",
+    origin = git.github_pr_origin(
+        url = GHext_url,
+        branch = "main"
+    ),
+    origin_files = glob(["**"], exclude = ["README.md"]),
+    destination = git.github_pr_destination(
+        url = GHint_url,
+        pr_branch = "replicant/${CONTEXT_REFERENCE}",
+        destination_ref = "main"
+    ),
+    destination_files = glob(["**"], exclude = ["README.md", "dont_replicate/**"]),
+    authoring = authoring.pass_thru("copybara <copybara@radix.bio>"),
+    transformations = [
+        github_list_prs(GHext_url, GHint_url),
+    ],
+)
