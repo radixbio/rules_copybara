@@ -27,6 +27,7 @@ def _copybara_impl(ctx):
 
         # the copybara jar
         command.append(str(copybara.files_to_run.executable.short_path))
+        command.append("migrate")
 
         # the wrapper will copy the workflow file to this constant string (idk, it's not happy w/ a symlink or a nested file)
         command.append("copy.bara.sky")
