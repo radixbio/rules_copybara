@@ -1,0 +1,32 @@
+# Variables
+SOT_REPO = "{sotRepo}"
+SOT_BRANCH = "{sotBranch}"
+DESTINATION_REPO = "{destinationRepo}"
+DESTINATION_BRANCH = "{destinationBranch}"
+COMMITTER = "{committer}"
+MODE = "{mode}"
+LOCAL_SOT = "{localSot}"
+PUSH_FILES = {push_files}
+DEST_FILES = {destination_files}
+PR_TRANSFORMATIONS = {pr_transformations}
+
+
+#Workflow
+core.workflow(
+    name = "pr",
+    origin = git.github_pr_origin(
+        url = DESTINATION_REPO,
+        branch = DESTINATION_BRANCH,
+    ),
+    destination = git.github_pr_destination(
+        url = SOT_REPO,
+        destination_ref = SOT_BRANCH,
+        integrates = [],
+    ),
+    destination_files = DEST_FILES,
+    origin_files = PUSH_FILES,
+    authoring = authoring.pass_thru(default = COMMITTER),
+    mode = MODE,
+    set_rev_id = False,
+    transformations = PR_TRANSFORMATIONS,
+)
