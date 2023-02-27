@@ -231,7 +231,6 @@ def _copybara_move_github_pr_impl(ctx):
         #!/bin/sh
         rm -f copy.bara.sky
         cp {tmpl} copy.bara.sky
-        cat copy.bara.sky
         {command} migrate copy.bara.sky pr $@
         """.format(tmpl = str(push.short_path),
                    command = str(copybara.files_to_run.executable.short_path))
